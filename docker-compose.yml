@@ -9,12 +9,10 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/code
-    # Removed 'depends_on' since MinIO is external
+      # CHANGED: Map local directory to /app (matches Dockerfile WORKDIR)
+      - .:/app
     networks:
       - agrivision_net
-
-# Removed 'minio' service and 'volumes' block
 
 networks:
   agrivision_net:
