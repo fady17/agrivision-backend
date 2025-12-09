@@ -7,8 +7,9 @@ from pydantic import ValidationError
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.core import security
+# from app.core import security
 from app.models.user import User
+from typing import Optional
 
 # This tells FastAPI that the token comes from this URL (mostly for Swagger UI)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -33,7 +34,7 @@ async def get_current_user(
             settings.SECRET_KEY, 
             algorithms=[settings.ALGORITHM]
         )
-        email: str = payload.get("sub") # type: ignore
+        email: Optional[str] = payload.get("sub") 
         
         if email is None:
             raise credentials_exception
