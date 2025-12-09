@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response, status
 from minio import Minio
 from app.core.config import settings
-from app.routers import upload, classification, auth
+from app.routers import upload, classification, auth, history
 from sqlalchemy import text # Import text
 from app.core.database import get_db
 from fastapi import Depends
@@ -14,7 +14,7 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(upload.router, prefix="/api/v1", tags=["Image Operations"])
 # Add the new router
 app.include_router(classification.router, prefix="/api/v1", tags=["AI Classification"])
-
+app.include_router(history.router, prefix="/api/v1", tags=["User History"]) 
 # Global MinIO Client
 minio_client = Minio(
     settings.MINIO_ENDPOINT,
