@@ -2,8 +2,12 @@ import google.generativeai as genai
 from PIL import Image
 import io
 import json
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type # <--- NEW
+from google.api_core import exceptions as google_exceptions
+
 from app.core.config import settings
 from app.models.schemas import PlantAnalysisResult
+from app.core.exceptions import AIServiceError
 
 class GeminiService:
     def __init__(self):
@@ -41,6 +45,11 @@ class GeminiService:
         3. Be concise and actionable.
         """
 
+    @retry(
+        stop=stop_after_attempt(3), # Try 3 times
+        wait=wait_exponential(multiplier=1, min=2, max=10), # Wait 2s, then 4s, etc.
+        retry=retry_if_exception_type((google_exceptions.GoogleAPICallError, google_exceptions.RetryError))
+    )
     async def analyze_image_structured(self, image_bytes: bytes) -> PlantAnalysisResult:
         try:
             image = Image.open(io.BytesIO(image_bytes))
@@ -54,8 +63,13 @@ class GeminiService:
             # Validate with Pydantic
             return PlantAnalysisResult(**json_data)
             
+        except (google_exceptions.GoogleAPICallError, google_exceptions.RetryError) as e:
+                # This triggers the @retry decorator
+                print(f"Gemini Transient Error: {e}")
+                raise e 
         except Exception as e:
-            print(f"Gemini Analysis Error: {e}")
-            raise ValueError("Failed to analyze plant image")
+            # This is a permanent error (e.g. Bad JSON, Invalid Image) -> Don't retry
+            print(f"Gemini Permanent Error: {e}")
+            raise AIServiceError(f"AI Analysis Failed: {str(e)}")
 
 gemini_service = GeminiService()

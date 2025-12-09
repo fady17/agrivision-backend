@@ -5,10 +5,53 @@ from app.routers import upload, classification, auth, history
 from sqlalchemy import text # Import text
 from app.core.database import get_db
 from fastapi import Depends
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from app.core.exceptions import AIServiceError, StorageError, ImageValidationError # Import custom exceptions
+
 app = FastAPI(
     title=settings.API_TITLE,
     version=settings.API_VERSION
 )
+
+
+# --- GLOBAL EXCEPTION HANDLERS ---
+
+@app.exception_handler(AIServiceError)
+async def ai_exception_handler(request: Request, exc: AIServiceError):
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={
+            "status": "error",
+            "code": "AI_SERVICE_UNAVAILABLE",
+            "message": "The AI engine is currently overloaded. Please try again in a moment.",
+            "detail": str(exc)
+        },
+    )
+
+@app.exception_handler(StorageError)
+async def storage_exception_handler(request: Request, exc: StorageError):
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={
+            "status": "error",
+            "code": "STORAGE_ERROR",
+            "message": "Image upload failed. Please check your connection.",
+            "detail": str(exc)
+        },
+    )
+
+@app.exception_handler(ImageValidationError)
+async def validation_exception_handler(request: Request, exc: ImageValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={
+            "status": "error",
+            "code": "INVALID_IMAGE",
+            "message": "The image file appears corrupted or unsupported.",
+            "detail": str(exc)
+        },
+    )
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"]) 
 # Include the router
 app.include_router(upload.router, prefix="/api/v1", tags=["Image Operations"])
