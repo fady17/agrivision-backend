@@ -2,6 +2,7 @@ import uuid
 import io
 from minio import Minio
 from datetime import timedelta
+from urllib.parse import urlparse
 from app.core.config import settings
 
 class StorageService:
@@ -51,6 +52,33 @@ class StorageService:
             "url": url,
             "size": file_size
         }
+    
+    def get_fresh_url(self, expired_url: str) -> str:
+        """
+        Extracts filename from an old URL and generates a new presigned URL.
+        """
+        try:
+            # 1. Parse the URL to get the path
+            parsed = urlparse(expired_url)
+            path_parts = parsed.path.split('/')
+            
+            # 2. Extract object name (last part of path)
+            # URL is usually /bucket_name/filename.jpg
+            if not path_parts:
+                return expired_url
+                
+            object_name = path_parts[-1]
+            
+            # 3. Generate new signed URL (valid for 1 hour from NOW)
+            return self.client.get_presigned_url(
+                "GET",
+                self.bucket,
+                object_name,
+                expires=timedelta(hours=1)
+            )
+        except Exception as e:
+            print(f"Failed to refresh URL: {e}")
+            return expired_url
 
 # Singleton instance
 storage_service = StorageService()
