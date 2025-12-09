@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response, status
 from minio import Minio
 from app.core.config import settings
-from app.routers import upload, classification 
+from app.routers import upload, classification, auth
 from sqlalchemy import text # Import text
 from app.core.database import get_db
 from fastapi import Depends
@@ -9,7 +9,7 @@ app = FastAPI(
     title=settings.API_TITLE,
     version=settings.API_VERSION
 )
-
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"]) 
 # Include the router
 app.include_router(upload.router, prefix="/api/v1", tags=["Image Operations"])
 # Add the new router

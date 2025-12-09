@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr, UUID4
 from typing import List, Optional
 
 class ImageUploadResult(BaseModel):
@@ -33,3 +33,27 @@ class APIResponse(BaseModel):
     status: str
     data: Optional[PlantAnalysisResult] = None
     error: Optional[str] = None
+
+# --- AUTH SCHEMAS ---
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: Optional[str] = None
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    id: UUID4
+    email: EmailStr
+    full_name: Optional[str] = None
+    is_active: bool
+
+    class Config:
+        from_attributes = True # Allows reading from ORM model
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
