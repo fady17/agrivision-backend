@@ -11,9 +11,27 @@ services:
     volumes:
       # CHANGED: Map local directory to /app (matches Dockerfile WORKDIR)
       - .:/app
+    depends_on:
+      - db 
     networks:
       - agrivision_net
 
+  db:
+    image: postgres:15-alpine
+    container_name: agrivision_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - agrivision_net
+
+volumes:
+  postgres_data:
+  
 networks:
   agrivision_net:
     driver: bridge

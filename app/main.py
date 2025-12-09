@@ -2,7 +2,9 @@ from fastapi import FastAPI, Response, status
 from minio import Minio
 from app.core.config import settings
 from app.routers import upload, classification 
-
+from sqlalchemy import text # Import text
+from app.core.database import get_db
+from fastapi import Depends
 app = FastAPI(
     title=settings.API_TITLE,
     version=settings.API_VERSION
@@ -26,27 +28,33 @@ def root():
     return {"message": "AgriVision API is running", "system": "healthy"}
 
 @app.get("/health", status_code=status.HTTP_200_OK)
-def health_check(response: Response):
-    """
-    Verifies connection to MinIO storage.
-    """
+async def health_check(
+    response: Response, 
+    db_session = Depends(get_db) # Inject DB session
+):
     health_status = {
         "api": "online",
-        "storage": "unknown",
-        "bucket": settings.MINIO_BUCKET_NAME
+        "storage": "unknown", 
+        "database": "unknown" # NEW
     }
     
+    # 1. Check Storage (Existing)
     try:
-        # Check if bucket exists to verify connection
         if minio_client.bucket_exists(settings.MINIO_BUCKET_NAME):
             health_status["storage"] = "connected"
         else:
             health_status["storage"] = "bucket_missing"
-            response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-            
-    except Exception as e:
+    except Exception:
         health_status["storage"] = "disconnected"
-        health_status["error"] = str(e)
+
+    # 2. Check Database (NEW)
+    try:
+        # Run a simple query "SELECT 1"
+        await db_session.execute(text("SELECT 1"))
+        health_status["database"] = "connected"
+    except Exception as e:
+        health_status["database"] = "disconnected"
+        health_status["db_error"] = str(e)
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
     return health_status
