@@ -2,6 +2,13 @@ from sqlalchemy.ext.asyncio import create_async_engine,  async_sessionmaker
 from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 
+
+
+# ADD THIS BLOCK
+print("--- DEBUG DATABASE CONFIG ---")
+print(f"URI: {settings.SQLALCHEMY_DATABASE_URI}")
+print("---------------------------")
+
 # 1. Create Async Engine
 engine = create_async_engine(
     settings.SQLALCHEMY_DATABASE_URI,
