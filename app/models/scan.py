@@ -2,6 +2,8 @@ from sqlalchemy import Column, String, Float, Integer, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+# Removed unused 'Index' import
+
 import uuid
 from app.core.database import Base
 
@@ -13,13 +15,14 @@ class Scan(Base):
     
     # Image Info
     image_url = Column(String, nullable=False)
+    image_hash = Column(String, index=True, nullable=True) # <--- New Column
     
-    # Diagnosis Summary (for quick querying)
+    # Diagnosis Summary
     diagnosis_name = Column(String, nullable=False)
     confidence = Column(Float, nullable=False)
     severity_score = Column(Integer, nullable=False)
     
-    # Full AI Result (Future-proofing)
+    # Full AI Result
     full_analysis = Column(JSONB, nullable=False)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
