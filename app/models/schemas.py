@@ -24,6 +24,7 @@ class Severity(BaseModel):
 
 class PlantAnalysisResult(BaseModel):
     is_plant: bool = Field(description="True if image contains a plant")
+    image_url: Optional[str] = Field(None, description="URL of the uploaded image")
     diagnosis: Diagnosis
     severity: Severity
     recommendation: str = Field(description="Actionable advice for the farmer")
