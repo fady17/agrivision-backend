@@ -9,7 +9,7 @@ from alembic import context
 from app.core.config import settings  # <--- Import Settings
 from app.core.database import Base    # <--- Import Base
 from app.models.user import User      # <--- Import User so Base knows about it
-
+from app.models.scan import Scan
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
