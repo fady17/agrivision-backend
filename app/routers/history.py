@@ -4,6 +4,7 @@ from sqlalchemy import select, desc
 from typing import List
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
+from uuid import UUID  # <--- NEW IMPORT
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
@@ -12,14 +13,13 @@ from app.models.scan import Scan
 
 # Schema Definition
 class ScanSummary(BaseModel):
-    id: str
+    id: UUID          # <--- CHANGED: Use UUID type here
     image_url: str
     diagnosis_name: str
     severity_score: int
     confidence: float
     created_at: datetime
     
-    # This config tells Pydantic to read data from ORM objects
     model_config = ConfigDict(from_attributes=True)
 
 router = APIRouter()
@@ -31,10 +31,6 @@ async def get_user_scans(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Fetch paginated history of scans for the current user.
-    """
-    # Query: Select scans for this user, newest first
     query = (
         select(Scan)
         .where(Scan.user_id == current_user.id)
@@ -46,7 +42,6 @@ async def get_user_scans(
     result = await db.execute(query)
     scans = result.scalars().all()
     
-    # Use Pydantic to validate/convert SQLAlchemy models to JSON
     return [
         ScanSummary.model_validate(scan)
         for scan in scans
