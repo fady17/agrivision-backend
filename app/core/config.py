@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     MINIO_SECRET_KEY: str
     MINIO_BUCKET_NAME: str = "plant-disease-images"
     MINIO_SECURE: bool = False
+    # New Gemini Setting
+    GEMINI_API_KEY: str
+
 
     class Config:
         env_file = ".env"

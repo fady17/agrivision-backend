@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response, status
 from minio import Minio
 from app.core.config import settings
-from app.routers import upload
+from app.routers import upload, classification 
 
 app = FastAPI(
     title=settings.API_TITLE,
@@ -10,6 +10,8 @@ app = FastAPI(
 
 # Include the router
 app.include_router(upload.router, prefix="/api/v1", tags=["Image Operations"])
+# Add the new router
+app.include_router(classification.router, prefix="/api/v1", tags=["AI Classification"])
 
 # Global MinIO Client
 minio_client = Minio(
