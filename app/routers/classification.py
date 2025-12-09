@@ -7,6 +7,7 @@ from app.core.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
 from app.models.scan import Scan
+from app.core.image_utils import optimize_image
 
 router = APIRouter()
 
@@ -24,21 +25,26 @@ async def analyze_plant_disease(
         
     try:
         # 1. Read file content
-        contents = await file.read()
+        raw_contents = await file.read()
         
-        # 2. Upload to MinIO (Async/Blocking handling is managed by FastAPI threads)
+        # 2. OPTIMIZATION: Resize before anything else
+        # This reduces MinIO storage usage AND speeds up Gemini upload
+        optimized_contents = optimize_image(raw_contents)
+        
+        # 3. Upload to MinIO (Async/Blocking handling is managed by FastAPI threads)
         # We upload first so we have the URL even if AI fails (optional strategy)
         # or we can do it in parallel. For simplicity, sequential:
-        upload_result = storage_service.upload_image(contents, file.content_type)
+        upload_result = storage_service.upload_image(optimized_contents, "image/jpeg")
         image_url = upload_result["url"]
         
-        # 3. Analyze with Gemini
-        analysis_result = await gemini_service.analyze_image_structured(contents)
+        # 4. Analyze with Gemini (Use optimized bytes)
+        analysis_result = await gemini_service.analyze_image_structured(optimized_contents)
         
-        # 4. Attach the URL to the result
+
+        # 5. Attach the URL to the result
         analysis_result.image_url = image_url
 
-        # 5. Save to Database (Persistence)
+        # 6. Save to Database (Persistence)
         # Only save if it's actually a plant, or save everything depending on preference.
         # Let's save everything so users see "Non-plant" errors too.
         new_scan = Scan(
