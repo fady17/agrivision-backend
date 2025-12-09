@@ -1,11 +1,15 @@
 from fastapi import FastAPI, Response, status
 from minio import Minio
 from app.core.config import settings
+from app.routers import upload
 
 app = FastAPI(
     title=settings.API_TITLE,
     version=settings.API_VERSION
 )
+
+# Include the router
+app.include_router(upload.router, prefix="/api/v1", tags=["Image Operations"])
 
 # Global MinIO Client
 minio_client = Minio(

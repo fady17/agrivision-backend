@@ -224,6 +224,10 @@ python-dotenv==1.2.1 \
     # via
     #   agrivision-backend
     #   pydantic-settings
+python-multipart==0.0.20 \
+    --hash=sha256:8a62d3a8335e06589fe01f2a3e178cdcc632f3fbe0d492ad9ee0ec35aab1f104 \
+    --hash=sha256:8dd0cab45b8e23064ae09147625994d090fa46f5b0d1e13af944c331a7fa9d13
+    # via agrivision-backend
 starlette==0.50.0 \
     --hash=sha256:9e5391843ec9b6e472eed1365a78c8098cfceb7a74bfd4d6b1c0c0095efb3bca \
     --hash=sha256:a2a17b22203254bcbc2e1f926d2d55f3f9497f769416b3190768befe598fa3ca
