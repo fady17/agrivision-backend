@@ -75,16 +75,14 @@ async def get_scan_detail(
     if not scan:
         raise HTTPException(status_code=404, detail="Scan not found")
     
-    # TYPE FIX: Cast the JSONB column to a standard Python Dictionary
-    # This tells Pylance: "Trust me, this is a Dict with string keys"
+ 
     raw_analysis = cast(Dict[str, Any], scan.full_analysis)
     
     # Create a copy so we can modify it
     data = raw_analysis.copy()
     
-    # Refresh the URL using the storage service logic
-    # We cast scan.image_url to str to be safe
+
     data['image_url'] = storage_service.get_fresh_url(str(scan.image_url))
     
-    # Now Pylance knows 'data' is Dict[str, Any], so unpacking works
+ 
     return PlantAnalysisResult(**data)

@@ -15,7 +15,7 @@ class Scan(Base):
     
     # Image Info
     image_url = Column(String, nullable=False)
-    image_hash = Column(String, index=True, nullable=True) # <--- New Column
+    image_hash = Column(String, index=True, nullable=True) 
     
     # Diagnosis Summary
     diagnosis_name = Column(String, nullable=False)

@@ -45,8 +45,7 @@ async def analyze_plant_disease(
         if existing_scan:
             # CACHE HIT!
             
-            # TYPE FIX: We cast the SQLAlchemy attribute to Dict[str, Any] so Pylance stays happy.
-            # At runtime, existing_scan.full_analysis IS ALREADY a dict.
+           
             full_analysis_data = cast(Dict[str, Any], existing_scan.full_analysis) or {}
             stored_diagnosis = full_analysis_data.get('diagnosis', {})
             

@@ -28,14 +28,14 @@ class Settings(BaseSettings):
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
-        # Encode password to handle special chars like '@' safely
+   
         encoded_password = quote_plus(self.POSTGRES_PASSWORD)
         
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{encoded_password}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     class Config:
         env_file = ".env"
-        # Extract extra env vars without error
+   
         extra = "ignore"
     
 

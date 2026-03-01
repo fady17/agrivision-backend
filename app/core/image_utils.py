@@ -8,7 +8,7 @@ def optimize_image(image_bytes: bytes, max_size: int = 1024, quality: int = 85) 
     """
     try:
         with Image.open(io.BytesIO(image_bytes)) as img:
-            # Convert RGBA to RGB (fix for PNGs)
+            # Convert RGBA to RGB 
             if img.mode in ('RGBA', 'P'):
                 img = img.convert('RGB')
             

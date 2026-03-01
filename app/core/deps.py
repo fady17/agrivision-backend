@@ -11,7 +11,6 @@ from app.core.database import get_db
 from app.models.user import User
 from typing import Optional
 
-# This tells FastAPI that the token comes from this URL (mostly for Swagger UI)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 async def get_current_user(
